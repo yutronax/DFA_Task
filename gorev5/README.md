@@ -18,7 +18,7 @@ pip install opencv-python pytesseract
 ### Tesseract OCR'ı indirin ve kurun:
 https://github.com/tesseract-ocr/tesseract
 
-Windows için kodda tesseract yolu belirtilmelidir:
+### Windows için kodda tesseract yolu belirtilmelidir:
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
