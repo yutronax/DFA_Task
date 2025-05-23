@@ -3,7 +3,7 @@ import hashlib
 import datetime
 import os
 
-app = Flask(__name__, static_folder='static', template_folder='templates2')
+app = Flask(__name__, static_folder='static', template_folder='template')
 
 # Hafızada tutulan hash kayıtları
 kayitli_hashler = {}
@@ -11,7 +11,7 @@ kayitli_hashler = {}
 @app.route("/")
 def anasayfa():
     # Ana sayfa olarak gorev6.html dosyasını gösteriyoruz
-    return render_template("gorev6.html")
+    return render_template("Blockchain.html")
 
 @app.route("/hash", methods=["POST"])
 def hash_uret():
