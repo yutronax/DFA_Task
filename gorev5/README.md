@@ -1,4 +1,4 @@
-### Fatura OCR ve Veri Çıkarımı
+# Fatura OCR ve Veri Çıkarımı
 
 Bu Python projesi, fatura görselleri üzerinden Tarih, Tutar, Fatura No ve Toplam gibi temel bilgileri otomatik olarak ayıklar. Veriler bir CSV dosyasına kaydedilir.
 
