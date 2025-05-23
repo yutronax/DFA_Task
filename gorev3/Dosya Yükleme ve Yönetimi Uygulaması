@@ -1,1 +1,158 @@
+import os
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, abort
+from werkzeug.utils import secure_filename
+from functools import wraps
 
+# Flask uygulamamızı başlatıyoruz
+app = Flask(__name__)
+app.secret_key = 'supersecretkey'  # Gerçek projede burayı güçlü ve gizli bir anahtarla değiştir
+
+# Yüklenen dosyaların saklanacağı klasörü belirliyoruz
+KULLANICI_DOSYA_KLASORU = 'yuklenen_dosyalar'
+if not os.path.exists(KULLANICI_DOSYA_KLASORU):
+    os.makedirs(KULLANICI_DOSYA_KLASORU)  # Klasör yoksa oluşturuyoruz
+
+app.config['UPLOAD_FOLDER'] = KULLANICI_DOSYA_KLASORU
+
+# İzin verilen dosya uzantılarını belirliyoruz
+IZINLI_UZANTILAR = {'pdf', 'png', 'jpg', 'jpeg'}
+
+# Kullanıcı bilgilerini tutmak için geçici bir sözlük kullanıyoruz (kullanıcı_adı: sifre)
+kullanicilar = {}
+
+# Dosya uzantısının izinli olup olmadığını kontrol ediyoruz
+def uzanti_uygun_mu(dosya_adi):
+    return '.' in dosya_adi and dosya_adi.rsplit('.', 1)[1].lower() in IZINLI_UZANTILAR
+
+# Giriş yapılmamışsa belirli sayfalara erişimi engelliyoruz
+def giris_zorunlu(fonksiyon):
+    @wraps(fonksiyon)
+    def sarmal_fonksiyon(*args, **kwargs):
+        if 'kullanici' not in session:
+            flash('Bu sayfaya erişmek için giriş yapmalısınız.', 'warning')
+            return redirect(url_for('giris', next=request.url))
+        return fonksiyon(*args, **kwargs)
+    return sarmal_fonksiyon
+
+@app.route('/')
+def anasayfa():
+    if 'kullanici' in session:
+        return redirect(url_for('dosyalar'))
+    else:
+        return redirect(url_for('giris'))
+
+@app.route('/kayit', methods=['GET', 'POST'])
+def kayit():
+    if 'kullanici' in session:
+        return redirect(url_for('dosyalar'))
+
+    if request.method == 'POST':
+        kullanici_adi = request.form.get('username', '').strip()
+        sifre = request.form.get('password', '').strip()
+
+        if not kullanici_adi or not sifre:
+            flash('Kullanıcı adı ve şifre gerekli.', 'danger')
+            return render_template('register.html')
+
+        if kullanici_adi in kullanicilar:
+            flash('Bu kullanıcı adı zaten alınmış.', 'danger')
+            return render_template('register.html')
+
+        kullanicilar[kullanici_adi] = sifre
+        flash('Kayıt başarılı, şimdi giriş yapabilirsiniz.', 'success')
+        return redirect(url_for('giris'))
+
+    return render_template('register.html')
+
+@app.route('/giris', methods=['GET', 'POST'])
+def giris():
+    if 'kullanici' in session:
+        return redirect(url_for('dosyalar'))
+
+    if request.method == 'POST':
+        kullanici_adi = request.form.get('username', '').strip()
+        sifre = request.form.get('password', '').strip()
+
+        if not kullanici_adi or not sifre:
+            flash('Kullanıcı adı ve şifre gerekli.', 'danger')
+            return render_template('login.html')
+
+        dogru_sifre = kullanicilar.get(kullanici_adi)
+        if dogru_sifre and dogru_sifre == sifre:
+            session['kullanici'] = kullanici_adi
+            flash(f'Hoş geldin, {kullanici_adi}!', 'success')
+            sonraki = request.args.get('next')
+            return redirect(sonraki or url_for('dosyalar'))
+        else:
+            flash('Kullanıcı adı veya şifre hatalı.', 'danger')
+
+    return render_template('login.html')
+
+@app.route('/cikis')
+@giris_zorunlu
+def cikis():
+    session.pop('kullanici', None)
+    flash('Çıkış yaptınız.', 'info')
+    return redirect(url_for('giris'))
+
+@app.route('/yukle', methods=['GET', 'POST'])
+@giris_zorunlu
+def dosya_yukle():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('Dosya seçilmedi.', 'danger')
+            return redirect(request.url)
+
+        dosya = request.files['file']
+        if dosya.filename == '':
+            flash('Seçili dosya yok.', 'danger')
+            return redirect(request.url)
+
+        if dosya and uzanti_uygun_mu(dosya.filename):
+            guvenli_ad = secure_filename(dosya.filename)
+            # Dosya adında kullanıcının ismini başa ekleyerek çakışmayı önlüyoruz
+            dosya_adi = f"{session['kullanici']}_{guvenli_ad}"
+            dosya_yolu = os.path.join(app.config['UPLOAD_FOLDER'], dosya_adi)
+            dosya.save(dosya_yolu)
+            flash('Dosya başarıyla yüklendi.', 'success')
+            return redirect(url_for('dosyalar'))
+        else:
+            flash('İzin verilen dosya türleri: pdf, png, jpg, jpeg.', 'danger')
+            return redirect(request.url)
+
+    return render_template('upload.html')
+
+@app.route('/dosyalar')
+@giris_zorunlu
+def dosyalar():
+    kullanici = session['kullanici']
+    tum_dosyalar = os.listdir(app.config['UPLOAD_FOLDER'])
+    kullanici_dosyalari = [d for d in tum_dosyalar if d.startswith(kullanici + '_')]
+    return render_template('files.html', files=kullanici_dosyalari)
+
+@app.route('/dosyalar/<dosya_adi>/sil', methods=['POST'])
+@giris_zorunlu
+def dosya_sil(dosya_adi):
+    kullanici = session['kullanici']
+    if not dosya_adi.startswith(kullanici + '_'):
+        abort(403)
+
+    dosya_yolu = os.path.join(app.config['UPLOAD_FOLDER'], dosya_adi)
+    if os.path.exists(dosya_yolu):
+        os.remove(dosya_yolu)
+        flash('Dosya silindi.', 'success')
+    else:
+        flash('Dosya bulunamadı.', 'danger')
+
+    return redirect(url_for('dosyalar'))
+
+@app.route('/indirilenler/<dosya_adi>')
+@giris_zorunlu
+def dosya_goster(dosya_adi):
+    kullanici = session['kullanici']
+    if not dosya_adi.startswith(kullanici + '_'):
+        abort(403)
+    return send_from_directory(app.config['UPLOAD_FOLDER'], dosya_adi)
+
+if __name__ == '__main__':
+    app.run(debug=True)
