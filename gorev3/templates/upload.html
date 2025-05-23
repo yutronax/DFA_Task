@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Upload File{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Upload a File</h2>
+<form method="POST" enctype="multipart/form-data" novalidate>
+  <div class="mb-3">
+    <label for="file" class="form-label">Select file (PDF, PNG, JPG):</label>
+    <input class="form-control" type="file" id="file" name="file" accept=".pdf,.png,.jpg,.jpeg" required />
+  </div>
+  <button type="submit" class="btn btn-primary">Upload</button>
+  <a href="{{ url_for('files') }}" class="btn btn-secondary ms-2">Back to Files</a>
+</form>
+{% endblock %}
