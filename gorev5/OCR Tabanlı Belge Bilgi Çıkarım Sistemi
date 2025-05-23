@@ -8,7 +8,7 @@ import re
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # OCR işlemini yapacağımız görseli okuyoruz
-gorsel_yolu = "image.png"  # Görselin yolu
+gorsel_yolu = "fatura1.jpg"  # Görselin yolu
 gorsel = cv2.imread(gorsel_yolu)
 
 # Görseli griye çeviriyoruz çünkü OCR, gri görsellerde daha iyi sonuç verir
