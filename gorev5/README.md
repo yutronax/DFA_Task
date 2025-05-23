@@ -11,11 +11,11 @@ Bu Python projesi, fatura görselleri üzerinden Tarih, Tutar, Fatura No ve Topl
 
 ## Kurulum
 
-# Gerekli Python kütüphanelerini yüklemek için:
+### Gerekli Python kütüphanelerini yüklemek için:
 
 pip install opencv-python pytesseract
 
-# Tesseract OCR'ı indirin ve kurun:
+### Tesseract OCR'ı indirin ve kurun:
 https://github.com/tesseract-ocr/tesseract
 
 Windows için kodda tesseract yolu belirtilmelidir:
