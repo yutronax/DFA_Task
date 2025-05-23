@@ -1,6 +1,6 @@
-Bu klasör, Flask uygulamasında kullanılan HTML şablonlarını içerir. Kullanıcı arayüzünü oluşturmak için Bootstrap tabanlı görünümler kullanılmıştır.
+# Bu klasör, Flask uygulamasında kullanılan HTML şablonlarını içerir. Kullanıcı arayüzünü oluşturmak için Bootstrap tabanlı görünümler kullanılmıştır.
 
-Kullanılan şablon dosyaları:
+## Kullanılan şablon dosyaları:
 
 - `base.html`: Sayfalar arasında ortak kullanılan yapıyı (bootstrap, başlık, gövde düzeni) barındırır. 
 
@@ -12,5 +12,5 @@ Kullanılan şablon dosyaları:
 
 - `register.html`: Yeni kullanıcı kayıt formunu içerir. `login.html` gibi kendi içinde tasarlanmıştır.
 
-Not: `base.html` şablonu sadece `upload.html` ve `files.html` dosyalarında kullanılmaktadır.
+## Not: `base.html` şablonu sadece `upload.html` ve `files.html` dosyalarında kullanılmaktadır.
 
