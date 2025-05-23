@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Blockchain Simülasyonu</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #e7e9f0;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .kapsayici {
+    max-width: 480px;
+    margin: 30px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.1);
+  }
+  input[type="file"] {
+    display: block;
+    margin-bottom: 15px;
+  }
+  button {
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius:4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 10px;
+  }
+  button:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+  }
+  #hashAlani, #dogrulamaAlani {
+    margin-top: 20px;
+    padding: 10px;
+    background: #f4f6fb;
+    border-radius: 6px;
+    font-family: monospace;
+    word-break: break-word;
+  }
+  .butonlar {
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="kapsayici">
+    <h1>Blockchain Simülasyonu</h1>
+    <input type="file" id="dosyaGirdisi" />
+    <div class="butonlar">
+      <button id="btnHash" disabled>Hash Hesapla</button>
+      <button id="btnKaydet" disabled>Hash'ı Kaydet</button>
+      <button id="btnDogrula" disabled>Hash'ı Doğrula</button>
+    </div>
+    <div id="hashAlani" aria-live="polite"></div>
+    <div id="dogrulamaAlani" aria-live="polite"></div>
+  </div>
+
+  <script>
+    // SHA-256 algoritması ile hash üretimi yapıyoruz
+    async function hashHesapla(veriBuffer) {
+      const hashBuffer = await crypto.subtle.digest('SHA-256', veriBuffer);
+      const byteDizisi = Array.from(new Uint8Array(hashBuffer));
+      const hexDegeri = byteDizisi.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hexDegeri;
+    }
+
+    // HTML elementlerini alıyoruz
+    const dosyaGirdisi = document.getElementById('dosyaGirdisi');
+    const btnHash = document.getElementById('btnHash');
+    const btnKaydet = document.getElementById('btnKaydet');
+    const btnDogrula = document.getElementById('btnDogrula');
+    const hashAlani = document.getElementById('hashAlani');
+    const dogrulamaAlani = document.getElementById('dogrulamaAlani');
+
+    let aktifHash = null;
+
+    // Dosya seçilince butonları aktif ediyoruz
+    dosyaGirdisi.addEventListener('change', () => {
+      btnHash.disabled = !dosyaGirdisi.files.length;
+      btnKaydet.disabled = true;
+      btnDogrula.disabled = true;
+      aktifHash = null;
+      hashAlani.textContent = '';
+      dogrulamaAlani.textContent = '';
+    });
+
+    // Hash hesapla butonuna tıklanınca hash işlemi yapılıyor
+    btnHash.addEventListener('click', async () => {
+      if (!dosyaGirdisi.files.length) {
+        alert('Lütfen dosya seçiniz.');
+        return;
+      }
+      const secilenDosya = dosyaGirdisi.files[0];
+      const veriBuffer = await secilenDosya.arrayBuffer();
+      aktifHash = await hashHesapla(veriBuffer);
+      hashAlani.textContent = 'Hash: ' + aktifHash;
+      dogrulamaAlani.textContent = '';
+      btnKaydet.disabled = false;
+      btnDogrula.disabled = false;
+    });
+
+    // Hash'ı localStorage'a kaydediyoruz
+    btnKaydet.addEventListener('click', () => {
+      if (!aktifHash) {
+        alert('Önce hash hesaplayın.');
+        return;
+      }
+      const zamanDamgasi = new Date().toISOString();
+      localStorage.setItem(aktifHash, zamanDamgasi);
+      dogrulamaAlani.textContent = `Hash ve zaman damgası kaydedildi: ${zamanDamgasi}`;
+    });
+
+    // Hash doğrulama işlemi yapılıyor
+    btnDogrula.addEventListener('click', () => {
+      if (!aktifHash) {
+        alert('Önce hash hesaplayın.');
+        return;
+      }
+      const kayitliZaman = localStorage.getItem(aktifHash);
+      if (kayitliZaman) {
+        dogrulamaAlani.textContent = `Hash doğrulandı! Kaydedilme zamanı: ${kayitliZaman}`;
+      } else {
+        dogrulamaAlani.textContent = 'Hash kaydı bulunamadı, dosya değiştirilmiş olabilir.';
+      }
+    });
+  </script>
+</body>
+</html>
