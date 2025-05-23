@@ -10,10 +10,15 @@ Bu klasördeki her dizin, farklı görevler için oluşturulmuş örnek uygulama
 ## Genel Klasör Yapısı
 ### DFA_Task/
 ├── gorev1/
+
 ├── gorev2/
+
 ├── gorev3/
+
 ├── gorev4/
+
 ├── gorev5/
+
 └── gorev6/
 
 ##  Kullanılan Teknolojiler ve Araçlar
