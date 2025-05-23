@@ -8,14 +8,21 @@ Bu klasördeki her dizin, farklı görevler için oluşturulmuş örnek uygulama
 - `proje_adi/README.md`: Göreve özel açıklama ve kullanım notları
 - `proje_adi/`: İlgili görevde geliştirilen kod, veri seti ve çıktılar
 ## Genel Klasör Yapısı
-DFA_Task/
-├── gorev1/
-├── gorev2/
-├── gorev3/
-├── gorev4/
-├── gorev5/
-└── gorev6/
-## 🔧 Kullanılan Teknolojiler ve Araçlar
+### DFA_Task/
+├── 
+### gorev1/
+├── 
+### gorev2/
+├── 
+### gorev3/
+├── 
+### gorev4/
+├── 
+### gorev5/
+└── 
+### gorev6/
+
+##  Kullanılan Teknolojiler ve Araçlar
 
 - Python 
 - Selenium 
@@ -25,7 +32,7 @@ DFA_Task/
 - Tesseract OCR
 - Opencv
 - Flask
-## 📝 Projeler Hakkında
+##  Projeler Hakkında
 
 Her görev klasöründe, proje konusu, kullanılan yöntemler, kodlar ve açıklamalar yer almaktadır. Teknik rapor ve yorumlar, ilgili klasörlerde bulunmaktadır.
 
